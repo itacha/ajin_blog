@@ -1,0 +1,119 @@
+<%- include('./layout/head.ejs') %>
+<style>
+    .article-list{
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+    .img-wrap{
+      width: 50px;height: 50px;border:1px solid transparent;
+      border-radius: 50%;
+      -webkit-border-radius: 50%;
+      overflow: hidden;
+      float: left;
+    }
+    .head{
+      line-height: 50px;
+      height: 50px;
+      
+    }
+    h1{
+      font-size: 24px;
+    }
+    .post-main{
+      float: left;
+      margin-left: 10px;
+      width:89%;
+    }
+    .post-title{
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-audio{
+        display:inline-block;
+        width: 30px;
+        height: 25px;
+        margin: -7px 0;
+        background-size: cover;
+        background:url(../venderors/images/iconall.png) no-repeat -77px 0;
+     } 
+</style>
+<div class="container">
+    <h1>文章列表</h1>
+    <div class="list-group" style="margin-top:10px;">
+        <% articles.forEach((item,index) => { %>
+        <a  class="list-group-item animated fadeInRight delay-<%= index*1%>s article-list"> 
+          <%if(item.profileAddress){%>
+            <div class="img-wrap">
+                <img src="<%= item.profileAddress%>" alt="" style="width: 100%;">
+              </div>
+            <%}%>
+            <div class="post-main">
+                <div class="head">
+                    <span class="post-title" data-id="<%= item.id%>"><%= item.title %></span>
+                    <% if(item.music){%>           
+                          <div class="btn-audio">
+                              <audio class="mp3Btn">
+                                  <source src="<%= item.music%>" type="audio/mpeg" />
+                              </audio>
+                          </div>
+                    <% }%>
+                    <span class="badge" style="background-color: #5bc0de;float:right;margin:8px 2px">发表时间：<%= item.ctime %></span>
+                    <span class="badge" style="background-color: #f0ad4e;float:right;margin:8px 2px">作者昵称：<%= item.username %></span>
+              </div>
+              <p style="text-indent:2em"><%= item.content%></p>
+            </div>
+        </a>
+        <% }) %>
+    </div>
+    <!-- 分页区域 -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <li class="<%=nowpage-1 === 0 ? 'disabled' : '' %>">
+        <<%= nowpage-1 === 0 ? 'span' : 'a' %> href="?page=<%= nowpage-1 === 0 ? 1 : nowpage-1 %>" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </<%= nowpage-1 === 0 ? 'span' : 'a' %>>
+      </li>
+      <% for(var i = 0; i < totalPage; i++){ %>
+      <li class="<%= nowpage === (i+1) ? 'active' : '' %>"><a href="?page=<%= i+1 %>"><%= i+1 %></a></li>
+      <% } %>
+      <li class="<%= nowpage+1 > totalPage ? 'disabled' : ''  %>">
+        <<%= nowpage+1 > totalPage ? 'span' : 'a'  %> href="?page=<%= nowpage+1 > totalPage ? totalPage : nowpage+1  %>" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </<%= nowpage+1 > totalPage ? 'span' : 'a'  %>>
+      </li>
+    </ul>
+  </nav>
+</div>
+   <script>
+      $(function(){
+            //播放完毕
+            $('.mp3Btn').on('ended', function() {
+                $('.btn-audio').css({'height':'25px','background':'url(../venderors/images/iconall.png) no-repeat -77px 0'});
+            })
+            //播放器控制
+            // var audio = document.querySelector('.mp3Btn');
+            // audio.volume = .3;
+            $('.head').on('click','.btn-audio',function(){
+              event.stopPropagation();//防止冒泡
+                console.log(this.children[0].paused);               
+                var audio=this.children[0];
+                audio.volume = .3;
+                if(audio.paused){ //如果当前是暂停状态,相对的按钮图标应是播放样式
+                    $('.btn-audio').css({'height':'25px','background':'url(../venderors/images/iconall.png) no-repeat -77px 0'});
+                    $(this).css({'height':'25px','background':'url(../venderors/images/iconall.png) no-repeat -77px -60px'});
+                    audio.play(); //播放
+                    return;
+                }else{//当前是播放状态，相对的按钮图标应是暂停样式
+                  $('.btn-audio').css({'height':'25px','background':'url(../venderors/images/iconall.png) no-repeat -77px 0'});
+                    $(this).css({'height':'25px','background':'url(../venderors/images/iconall.png) no-repeat -77px 0'});
+                    audio.pause(); //暂停
+                }
+            })
+            $('.post-title').on('click',function(){
+              var id=$(this).attr('data-id');
+              location.href='/article/edit/'+id;
+            })
+        })
+   </script> 
+    <%- include('./layout/footer.ejs') %>

@@ -1,0 +1,73 @@
+<%- include('../layout/head.ejs')%>
+<link rel="stylesheet" href="/node_modules/mditor/dist/css/mditor.min.css">
+<script src="/node_modules/mditor/dist/js/mditor.min.js"></script>
+<style>
+        .error {
+            display: none;
+            background-color: bisque;
+            padding: 10px;
+            border: 1px solid transparent;
+            border-radius: 5px;
+        }
+    </style>
+<div class="container">
+    <h1>编辑文章</h1>
+    <hr>
+    <form id="form">
+        <input type="hidden" name="id" value="<%= article.id%>" class="id">
+        <div class="form-group">
+            <label>文章标题：</label>
+            <input type="text" name="title" class="form-control title" required value="<%= article.title%>">
+        </div>
+        <div class="form-group">
+            <label>文章内容：</label>
+            <textarea name="content" id="editor" class="form-group content"><%= article.content%></textarea>
+        </div>
+        <div class="form-group">
+            <input type="file" id="music" name="music">
+        </div>
+        <div class="form-group">
+            <input type="submit" value="保存文章" class="btn btn-primary">
+        </div>
+        <div class="form-group error">
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function(){
+        var mditor=Mditor.fromTextarea(document.getElementById('editor'))
+        var music;
+        $('#music').on('change',function(){
+            music=this.files[0]
+            // console.log(this.files);           
+        })
+        $('#form').on("submit",function (e) {
+            e.preventDefault();
+            var data=new FormData;
+            data.append('id',$('.id').val())           
+            data.append('title',$('.title').val())
+            data.append('content',$('.content').val())
+            data.append('music',music)
+            if (!music) {
+                data.append('music',music)
+            }          
+            $.ajax({
+                type: "post",
+                url: "/article/edit",
+                data: data,
+                contentType : false,  //只有设置了这个参数，jquery才会把文件带回到服务端
+                processData : false,  //告诉jq不要序列化我们的参数
+                success: function (response) {
+                    if(response.status!==200){
+                        $('.error').show();
+                        $('.error').text(response.msg)
+                    }
+                    location.href='/article/info/<%= article.id%>'
+                    }
+            });
+        })
+    })
+</script>
+
+<%- include('../layout/footer.ejs')%>
